@@ -43,8 +43,6 @@ def get_affichage_recette_par_id(id_recette):
     params = {
         "apiKey": API_KEY,
         "id": id_recette,
-        "mask" : "ellipseMask",
-        "backgroundImage" : "background2"
     }
     response = requests.get(endpoint, params=params)
     if response.status_code == 200:
