@@ -7,7 +7,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install the requirements
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=500 -r requirements.txt
 
 # Copy the code
 COPY . .

@@ -12,7 +12,7 @@ import pandas as pd
 #à écrire le code quand la bdd sera dispo
 
 
-#use TF-IDF to vectorize the text data (ingredients) TF-IDF is a m:ethod using text frequency and inverse document frequency to assign weights to words based on their importance in a document relative to a collection of documents. to convert into number
+#use TF-IDF to vectorize the text data (ingredients) TF-IDF is a method using text frequency and inverse document frequency to assign weights to words based on their importance in a document relative to a collection of documents. to convert into number
 tfidf = TfidfVectorizer(
     ngram_range=(1,2),
     min_df=5,
@@ -24,8 +24,7 @@ tfidf = TfidfVectorizer(
 preprocess = ColumnTransformer(
     transformers=[
         ("text", tfidf, "ingredients"),
-        ("num", StandardScaler(), ["temps", "calories"]),
-        ("user", "passthrough", ["pct_vegetarien", "avg_time"])
+        ("num", StandardScaler(), ["temps", "calories"])
     ]
 )
 
