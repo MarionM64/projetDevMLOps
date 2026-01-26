@@ -57,3 +57,17 @@ def get_card_recipe_by_id(id_recipe):
         print(f"Erreur {response.status_code}: {response.text}")
         return None
     
+def get_ingredients_recipe_by_id(id_recipe):
+    endpoint = f"{BASE_URL}/{id_recipe}/ingredientWidget.png"
+    params = {
+        "apiKey": API_KEY,
+        "id":id_recipe,
+        "measure": "metric",
+    }
+    response = requests.get(endpoint, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erreur {response.status_code}: {response.text}")
+        return None
+    
