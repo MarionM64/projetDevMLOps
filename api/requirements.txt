@@ -1,2 +1,11 @@
 fastapi
 uvicorn[standard]
+python-jose[cryptography]
+prometheus-client
+prometheus-fastapi-instrumentator
+typing-extensions
+pydantic
+httpx
+pandas
+sklearn
+numpy
