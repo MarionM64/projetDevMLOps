@@ -15,7 +15,7 @@ async def getCardRecipe(id : int):
     return get_card_recipe_by_id(id)
 
 @router.get("/recipe/like/{id}", tags=["recipe"])
-async def afficheRecipe(id : int):
+async def likeRecipe(id : int):
     return add_like_recipe(id)
 
 @router.get("/research/recipe/{query}", tags=["research"])
