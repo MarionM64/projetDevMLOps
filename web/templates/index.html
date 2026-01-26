@@ -11,7 +11,7 @@
         <h1>
         Search recipes
         </h1>
-        <form action="/recherche/recettes/" method="POST">
+        <form action="">
             <input
             type="search"
             name="query"
@@ -22,19 +22,45 @@
         </form>
     </header>
     <main>
-        {% if results %}
-            <h2>Search Results:</h2>
-            <ul>
-                {% for recipe in results %}
-                    <li>{{ recipe }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No results found.</p>
-        {% endif %}
+        <section class="results">
+        </section>
     </main>
     <footer>
 
     </footer>
+    <script>
+        const form = document.querySelector('form');
+        const resultsSection = document.querySelector('.results');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const query = form.query.value;
+            resultsSection.innerHTML = '<p>Loading...</p>';
+
+            try {
+                const response = await fetch(`/recherche/recettes/?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultsSection.innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+
+                if (data.results.length === 0) {
+                    resultsSection.innerHTML = '<p>No results found.</p>';
+                    return;
+                }
+
+                resultsSection.innerHTML = data.results.map(recipe => `
+                    <div class="recipe">
+                        <h2>${recipe.name}</h2>
+                        <p>${recipe.description}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                resultsSection.innerHTML = `<p>Error fetching results: ${error.message}</p>`;
+            }
+        });
+    </script>
 </body>
 </html>
