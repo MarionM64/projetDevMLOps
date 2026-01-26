@@ -28,7 +28,22 @@ def get_recette_par_id(id_recette):
     endpoint = f"{BASE_URL}/{id_recette}/information"
     params = {
         "apiKey": API_KEY,
-        "includeNutrition": True
+        "includeNutrition": False
+    }
+    response = requests.get(endpoint, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erreur {response.status_code}: {response.text}")
+        return None
+    
+
+def get_affichage_recette_par_id(id_recette):
+    endpoint = f"{BASE_URL}/{id_recette}/card"
+    params = {
+        "apiKey": API_KEY,
+        "id": id_recette,
+        "mask" : "starMask"
     }
     response = requests.get(endpoint, params=params)
     if response.status_code == 200:
