@@ -1,15 +1,15 @@
 from fastapi import APIRouter, FastAPI
 
-from src.services.food_service import get_recette_par_id, rechercher_recettes, get_affichage_recette_par_id
+from src.services.food_service import research_recipe, get_recipe_by_id, get_card_recipe_by_id
 
 router = APIRouter()
 
 
-@router.get("/recette/{id}", tags=["recette"])
+@router.get("/recipe/{id}", tags=["recipe"])
 async def afficheRecette(id : int):
-    return get_affichage_recette_par_id(id)
+    return get_recipe_by_id(id)
 
 
-@router.get("/recherche/recettes/{query}", tags=["recherce"])
+@router.get("/research/recipe/{query}", tags=["research"])
 async def rechercheRecette(query : str):
-    return rechercher_recettes(query)
+    return research_recipe(query)

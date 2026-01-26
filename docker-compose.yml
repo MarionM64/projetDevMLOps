@@ -42,12 +42,16 @@ services:
       POSTGRES_DB: food_bd
       POSTGRES_PASSWORD: password
       POSTGRES_USER: user
+    networks:
+      - projet-network
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - projet-network
 
 
 volumes:
