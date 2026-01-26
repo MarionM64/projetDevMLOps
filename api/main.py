@@ -5,7 +5,12 @@ app = FastAPI()
 
 app.include_router(food_router.router)
 
+try:
+        init_db()
+except Exception as e:
+    print(f"Erreur lors de l'initialisation: {e}")
+
 @app.get("/")
 async def root():
-    init_db()
+    print("ok")
     return {"message": "Hello World"}
