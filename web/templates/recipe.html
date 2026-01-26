@@ -19,7 +19,7 @@
     <script>
         async function fetchRecipeDetails(id) {
             try {
-                const response = await fetch(`http://localhost:8000/recette/?id=${id}`);
+                const response = await fetch(`http://localhost:8000/recipe/${id}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -32,8 +32,10 @@
                     <h2>${recipe.title}</h2>
                     <img src="${recipe.image}" alt="Recipe Image"/>
                     <article>
+                    <button onclick="window.location.href='http://localhost:8000/recipe/${id}'">Like</button> ${recipe.likes} likes
                     Ready in : ${recipe.readyInMinutes} min <br/>
                     Servings : ${recipe.servings} prs
+                    <br/>
                     <br/>
                     <h3>Ingredients :</h3>
                     <ul>
