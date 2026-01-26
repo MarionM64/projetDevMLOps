@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Details</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body class="container">
+    <header>
+        <h1>Recipe Details</h1>
+    </header>
+    <main>
+        <section class="recipe-details" id="recipe-details">
+            <p>Loading...</p>
+        </section>
+    </main>
+    <footer> </footer>
+    <script>
+        async function fetchRecipeDetails(id) {
+            try {
+                const response = await fetch(`http://localhost:8000/recette/?id=${id}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('recipe-details').innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+
+                const recipe = data;
+                document.getElementById('recipe-details').innerHTML = `
+                    <h2>${recipe.title}</h2>
+                    <img src="${recipe.image}" alt="Recipe Image"/>
+                    <article>
+                    Ready in : ${recipe.readyInMinutes} min <br/>
+                    Servings : ${recipe.servings} prs
+                    <br/>
+                    <h3>Ingredients :</h3>
+                    <ul>
+                        ${recipe.extendedIngredients.map(ing => `<li>${ing.nameClean} : ${ing.amount} ${ing.unit}</li>`).join('')}
+                    </ul>
+                    <h3>Instructions :</h3>
+                    <ul>
+                        ${recipe.analyzedInstructions[0]?.steps.map(step => `<li>Step ${step.number} : ${step.step}</li>`).join('')}
+                    </ul>
+                    </article>
+                `;
+            } catch (error) {
+                document.getElementById('recipe-details').innerHTML = `<p>Error fetching recipe details.</p>`;
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
+        if (recipeId) {
+            fetchRecipeDetails(recipeId);
+        } else {
+            document.getElementById('recipe-details').innerHTML = '<p>No recipe ID provided.</p>';
+        }
+    </script>
+</body>
+</html>

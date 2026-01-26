@@ -52,9 +52,12 @@
                 }
 
                 resultsSection.innerHTML = data.results.map(recipe => `
-                    <div class="recipe">
+                    <button class="recipe-button" onclick="window.location.href='http://localhost:5173/templates/recette.html?id=${recipe.id}'">
+                    <article class="recipe">
                         <h2>${recipe.title}</h2>
-                    </div>
+                        <img src="${recipe.image}" alt="No image"/>
+                    </article>
+                    </button>
                 `).join('');
             } catch (error) {
                 resultsSection.innerHTML = `<p>Error fetching results: ${error.message}</p>`;
