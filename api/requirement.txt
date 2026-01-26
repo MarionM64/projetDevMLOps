@@ -146,3 +146,4 @@ websockets==16.0
     # via uvicorn
 prometheus-client==0.18.0
 prometheus-fastapi-instrumentator
+python-jose==3.3.0
