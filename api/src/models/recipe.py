@@ -77,5 +77,6 @@ def add_like_recipe(id_recipe):
         conn.commit()
         cur.close()
         conn.close()
+        return True
     except psycopg2.OperationalError as e:
             print("Erreur de connexion à la base de données:", e)

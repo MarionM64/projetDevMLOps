@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import requests
 
-from src.models.recette import add_like_recipe, add_recipe
+from src.models.recipe import add_like_recipe, add_recipe
 
 # Charger les variables d'environnement depuis le fichier .env
 load_dotenv()
