@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the MLOps Project</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body class="container">
+    <header>
+        <h1>
+        Search recipes
+        </h1>
+        <form action="/recherche/recettes/" method="POST">
+            <input
+            type="search"
+            name="query"
+            placeholder="Search"
+            aria-label="Search"
+            />
+            <input type="submit" value="Search" />
+        </form>
+    </header>
+    <main>
+        {% if results %}
+            <h2>Search Results:</h2>
+            <ul>
+                {% for recipe in results %}
+                    <li>{{ recipe }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No results found.</p>
+        {% endif %}
+    </main>
+    <footer>
+
+    </footer>
+</body>
+</html>
