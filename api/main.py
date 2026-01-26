@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.models.recipe import init_db
+from src.models.recipe import init_db, get_recipes
 import src.router.food_router as food_router
 app = FastAPI()
 
