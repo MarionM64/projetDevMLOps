@@ -6,7 +6,7 @@ app = FastAPI()
 app.include_router(food_router.router)
 
 try:
-        init_db()
+    init_db()
 except Exception as e:
     print(f"Erreur lors de l'initialisation: {e}")
 
