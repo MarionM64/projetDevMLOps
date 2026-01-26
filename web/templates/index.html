@@ -38,7 +38,7 @@
             resultsSection.innerHTML = '<p>Loading...</p>';
 
             try {
-                const response = await fetch(`/recherche/recettes/?query=${encodeURIComponent(query)}`);
+                const response = await fetch(`http://localhost:8000/recherche/recettes/?query=${query}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -53,8 +53,7 @@
 
                 resultsSection.innerHTML = data.results.map(recipe => `
                     <div class="recipe">
-                        <h2>${recipe.name}</h2>
-                        <p>${recipe.description}</p>
+                        <h2>${recipe.title}</h2>
                     </div>
                 `).join('');
             } catch (error) {
