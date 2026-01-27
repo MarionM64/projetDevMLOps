@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
-  base: '/'
+  root: 'templates',
+  base: '/projetDevMLOps/',
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true,
+    minify: 'terser',
+    sourcemap: false
+  },
+  publicDir: '../static',
+  server: {
+    port: 3000,
+    open: true
+  }
 })
