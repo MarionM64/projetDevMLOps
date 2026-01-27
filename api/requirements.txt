@@ -6,6 +6,5 @@ psycopg2-binary
 pandas
 numpy
 scipy
-implicit
 mlflow
 scikit-learn
