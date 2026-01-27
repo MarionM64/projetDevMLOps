@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 from pydantic import BaseModel
 import model
 import config
-import router.auth_router
+import router.auth_router as auth_router
 
 
 
