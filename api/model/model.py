@@ -125,9 +125,9 @@ def recommend(N=5):
     
     recommendations = []
     for idx in sorted_indices:
-        recette_id = df_recettes.iloc[idx]['id']
-        recette_nom = df_recettes.iloc[idx]['nom']
-        score = scores[idx]
+        recette_id = int(df_recettes.iloc[idx]['id'])
+        recette_nom = str(df_recettes.iloc[idx]['nom'])
+        score = float(scores[idx])
         
         # On ne recommande pas ce qu'il a déjà liké
         if recette_id not in likes_utilisateur:
