@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import model
 import config
 import router.auth_router as auth_router
-
+from dependencies import get_current_user
 
 
 # Crée un routeur dédié à l’authentification
