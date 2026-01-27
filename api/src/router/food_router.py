@@ -2,7 +2,7 @@ from fastapi import APIRouter, FastAPI
 
 from src.models.recipe import add_like_recipe, get_like_by_recipe
 from src.services.food_service_spoonacular import research_recipe, get_recipe_by_id
-from model.model import recommend_implicit
+from model.model import recommend
 
 router = APIRouter()
 
@@ -26,5 +26,5 @@ async def researchRecipe(query : str):
 
 @router.get("/recommend/recipe", tags=["recommend"])
 async def recommendRecipe():
-    return recommend_implicit()
+    return recommend()
 
