@@ -9,16 +9,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Préparation des données
 # Tables de toutes les recettes
-recettes = get_recipes()
+#recettes = get_recipes()
 
-"""recettes = [
+recettes = [
     (1, "Gâteau Chocolat", 500),
     (2, "Tarte aux Pommes", 120),
     (3, "Poulet Curry", 900),
     (4, "Mousse au Chocolat", 150),
     (5, "Salade de Fruits", 50),
     (6, "Poulet Rôti", 300)
-]"""
+]
 
 df_recettes = pd.DataFrame(recettes, columns=['id', 'nom', 'like'])
 
@@ -87,7 +87,7 @@ with mlflow.start_run():
     # 4. LOGGING DANS MLFLOW
     mlflow.log_metric("avg_similarity_score", avg_similarity)
     mlflow.log_metric("max_similarity_score", max_similarity)
-    
+
 # --- 3. FONCTION DE RECOMMANDATION ---
 def recommend_single_user(N=5):
     """
