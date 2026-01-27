@@ -1,5 +1,5 @@
 import pandas as pd
-from api.src.models.recipe import get_recipes
+from src.models.recipe import get_recipes
 import numpy as np
 import scipy.sparse as sparse
 import pickle
@@ -8,8 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Préparation des données
-# Tables de toutes les recettes
-
+# liste de toutes les recettes
 recettes = get_recipes()
 
 """recettes = [
