@@ -3,4 +3,6 @@ uvicorn[standard]
 requests
 python-dotenv
 psycopg2-binary
+prometheus-fastapi-instrumentator==7.1.0
+prometheus-client==0.24.0
 

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from src.models.recipe import init_db, get_recipes
 import src.router.food_router as food_router
 from fastapi.middleware.cors import CORSMiddleware
-
+from prometheus_fastapi_instrumentator import Instrumentator
 app = FastAPI()
 
 app.add_middleware(
@@ -24,3 +24,6 @@ except Exception as e:
 async def root():
     print("ok")
     return {"message": "Hello World"}
+
+
+Instrumentator().instrument(app).expose(app)
