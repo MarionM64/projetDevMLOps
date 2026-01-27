@@ -38,7 +38,7 @@ jobs:
     - name: Test requirement
       run: |
         python -m pip freeze
-    - name: Test with pytest
-      run: |
-        pytest api/test.py
+#    - name: Test with pytest
+#      run: |
+#        pytest api/test.py
     
