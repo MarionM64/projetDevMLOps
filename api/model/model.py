@@ -23,7 +23,7 @@ recettes = get_recipes()
 df_recettes = pd.DataFrame(recettes, columns=['id', 'nom', 'like'])
 
 #utilisateur unique 
-likes_utilisateur = [635574,715569]
+likes_utilisateur = [1,2]
 
 #Entrainement du modèle
 mlflow.set_experiment("Recommendation_model")
