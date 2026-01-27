@@ -77,6 +77,37 @@ def add_like_recipe(id_recipe):
         conn.commit()
         cur.close()
         conn.close()
-        return True
+        return recipe[0][2]+1
     except psycopg2.OperationalError as e:
             print("Erreur de connexion à la base de données:", e)
+
+
+def get_recipes():
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM recipe')
+        rows = cur.fetchall()
+        conn.commit()
+        cur.close()
+        conn.close()
+        return rows
+    except psycopg2.OperationalError as e:
+        print("Erreur de connexion à la base de données:", e)
+
+
+def get_like_by_recipe(id):
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM recipe WHERE id=%s', (id,))
+        rows = cur.fetchall()
+        conn.commit()
+        cur.close()
+        conn.close()
+        if len(rows)==0:
+            return 0
+        else :
+            return rows[0][2]
+    except psycopg2.OperationalError as e:
+        print("Erreur de connexion à la base de données:", e)

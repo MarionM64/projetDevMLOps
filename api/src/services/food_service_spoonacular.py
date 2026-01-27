@@ -37,23 +37,13 @@ def get_recipe_by_id(id_recipe):
     }
     response = requests.get(endpoint, params=params)
     if response.status_code == 200:
-        add_like_recipe(id_recipe)
+        #add_like_recipe(id_recipe)
         return response.json()
     else:
         print(f"Erreur {response.status_code}: {response.text}")
         return None
     
 
-def get_card_recipe_by_id(id_recipe):
-    endpoint = f"{BASE_URL}/{id_recipe}/card"
-    params = {
-        "apiKey": API_KEY,
-        "id": id_recipe,
-    }
-    response = requests.get(endpoint, params=params)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Erreur {response.status_code}: {response.text}")
-        return None
+
+
     
