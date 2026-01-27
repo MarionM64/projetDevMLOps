@@ -3,4 +3,9 @@ uvicorn[standard]
 requests
 python-dotenv
 psycopg2-binary
-
+pandas
+numpy
+scipy
+implicit
+mlflow
+scikit-learn
