@@ -37,11 +37,6 @@ jobs:
         working-directory: web
         run: npm run build
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: web/dist
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
