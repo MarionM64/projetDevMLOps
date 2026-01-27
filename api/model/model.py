@@ -9,21 +9,24 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Préparation des données
 # Tables de toutes les recettes
-#recettes = get_recipes()
 
-recettes = [
+recettes = get_recipes()
+
+"""recettes = [
     (1, "Gâteau Chocolat", 500),
     (2, "Tarte aux Pommes", 120),
     (3, "Poulet Curry", 900),
     (4, "Mousse au Chocolat", 150),
     (5, "Salade de Fruits", 50),
     (6, "Poulet Rôti", 300)
-]
+]"""
 
 df_recettes = pd.DataFrame(recettes, columns=['id', 'nom', 'like'])
 
 #utilisateur unique 
-likes_utilisateur = [1,2]
+#likes_utilisateur = [1,2]
+likes_utilisateur = [633766,1697541,654911,716429]
+
 
 #Entrainement du modèle
 mlflow.set_experiment("Recommendation_model")
