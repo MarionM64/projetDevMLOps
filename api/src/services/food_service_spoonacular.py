@@ -11,6 +11,7 @@ load_dotenv()
 API_KEY = os.getenv("API_FOOD_KEY")
 BASE_URL = "https://api.spoonacular.com/recipes"
 
+#recherche de recettes
 def research_recipe(query):
     endpoint = f"{BASE_URL}/complexSearch"
     params = {
