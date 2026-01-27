@@ -38,7 +38,7 @@
             resultsSection.innerHTML = '<p>Loading...</p>';
 
             try {
-                const response = await fetch(`http://localhost:8000/recherche/recettes/?query=${query}`);
+                const response = await fetch(`http://localhost:8000/research/recipe/${query}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -52,7 +52,7 @@
                 }
 
                 resultsSection.innerHTML = data.results.map(recipe => `
-                    <button class="recipe-button" onclick="window.location.href='http://localhost:5173/templates/recette.html?id=${recipe.id}'">
+                    <button class="recipe-button" onclick="window.location.href='http://localhost:5173/templates/recipe.html?id=${recipe.id}'">
                     <article class="recipe">
                         <h2>${recipe.title}</h2>
                         <img src="${recipe.image}" alt="No image"/>

@@ -8,6 +8,7 @@
 </head>
 <body class="container">
     <header>
+        <a href="../templates/index.html">Back to Home</a>
         <h1>Recipe Details</h1>
     </header>
     <main>
@@ -17,9 +18,16 @@
     </main>
     <footer> </footer>
     <script>
+        function likeRecipe(id) {
+            fetch(`http://localhost:8000/recipe/like/${id}`, {
+                method: 'PUT'
+            })
+            .then(() => location.reload());
+        }
+
         async function fetchRecipeDetails(id) {
             try {
-                const response = await fetch(`http://localhost:8000/recette/?id=${id}`);
+                const response = await fetch(`http://localhost:8000/recipe/${id}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -32,8 +40,11 @@
                     <h2>${recipe.title}</h2>
                     <img src="${recipe.image}" alt="Recipe Image"/>
                     <article>
-                    Ready in : ${recipe.readyInMinutes} min <br/>
+                    <button onclick="likeRecipe(${id})">Like</button> ${recipe.like} likes <br/>
+                    Ready in : ${recipe.readyInMinutes} min 
+                    <br/>
                     Servings : ${recipe.servings} prs
+                    <br/>
                     <br/>
                     <h3>Ingredients :</h3>
                     <ul>

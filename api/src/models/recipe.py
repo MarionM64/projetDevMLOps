@@ -37,7 +37,7 @@ def get_recipe(id):
     try:
         conn = connect_db()
         cur = conn.cursor()
-        cur.execute('SELECT * FROM recipe WHERE id=%s', (id,))
+        cur.execute('SELECT * FROM recipe WHERE id=%s', [id])
         rows = cur.fetchall()
         conn.commit()
         cur.close()
