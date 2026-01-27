@@ -54,6 +54,40 @@ with mlflow.start_run():
     mlflow.log_artifact('tfidf_matrix.pkl')
     print("Modèle Content-Based sauvegardé.")
 
+    #metriques mlflow
+    liked_df = df_recettes[df_recettes['id'].isin(likes_utilisateur)]
+    user_vectors = tfidf.transform(liked_df['nom'])
+    user_profile = np.mean(user_vectors, axis=0)
+    user_profile = np.asarray(user_profile)
+
+    # 2. On calcule les scores de similarité avec TOUT
+    cosine_sim = cosine_similarity(user_profile, tfidf_matrix).flatten()
+    
+    # 3. On regarde les scores du Top 3 (hors recettes déjà likées)
+    sorted_indices = cosine_sim.argsort()[::-1]
+    
+    top_scores = []
+    for idx in sorted_indices:
+        rid = df_recettes.iloc[idx]['id']
+        if rid not in likes_utilisateur:
+            top_scores.append(cosine_sim[idx])
+        if len(top_scores) >= 3:
+            break
+            
+    # MÈTRIQUE 1 : Confiance Moyenne
+    # (Est-ce que le modèle trouve des trucs très ressemblants ?)
+    avg_similarity = np.mean(top_scores) if top_scores else 0
+    
+    # MÉTRIQUE 2 : Confiance Max
+    # (Quel est le score de la meilleure recommandation ?)
+    max_similarity = top_scores[0] if top_scores else 0
+
+    print(f"Métriques calculées -> Moyenne: {avg_similarity:.4f}, Max: {max_similarity:.4f}")
+
+    # 4. LOGGING DANS MLFLOW
+    mlflow.log_metric("avg_similarity_score", avg_similarity)
+    mlflow.log_metric("max_similarity_score", max_similarity)
+    
 # --- 3. FONCTION DE RECOMMANDATION ---
 def recommend_single_user(N=5):
     """
