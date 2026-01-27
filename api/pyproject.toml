@@ -19,3 +19,5 @@ dependencies = [
     "prometheus-fastapi-instrumentator==7.1.0",
     "python-dotenv"
 ]
+[project.scripts]
+app = "api.main:app"
