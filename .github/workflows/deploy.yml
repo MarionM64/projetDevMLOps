@@ -2,8 +2,7 @@ name: Deploy Frontend to GitHub Pages
 
 on:
   push:
-    branches:
-      - victor
+    branches: [ "main", "victor" ]
       
     paths:
       - "web/**"
