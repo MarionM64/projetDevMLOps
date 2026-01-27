@@ -14,7 +14,7 @@ async def getRecipe(id : int):
     return res
 
 
-@router.get("/recipe/like/{id}", tags=["recipe"])
+@router.put("/recipe/like/{id}", tags=["recipe"])
 async def likeRecipe(id : int):
     return add_like_recipe(id)
 
