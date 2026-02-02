@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
-from api.src.router.food_router import router as food_router
+from src.router.food_router import router as food_router
 import sys
 from pathlib import Path
 

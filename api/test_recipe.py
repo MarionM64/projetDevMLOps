@@ -30,8 +30,9 @@ def test_recipe_get_id_404error(client, monkeypatch):
     def fake_get_recipe_by_id(id_recipe):
         return None
 
+    # Patch the function as referenced by the router to avoid calling the real external API
     monkeypatch.setattr(
-        "src.services.food_service_spoonacular.get_recipe_by_id",
+        "src.router.food_router.get_recipe_by_id",
         fake_get_recipe_by_id,
     )
 
@@ -50,13 +51,14 @@ def test_recipe_get_id_success(client, monkeypatch):
     def fake_get_like_by_recipe(id_recipe):
         return 5
 
+    # Patch the functions as referenced by the router to avoid calling external services
     monkeypatch.setattr(
-        "src.services.food_service_spoonacular.get_recipe_by_id",
+        "src.router.food_router.get_recipe_by_id",
         fake_get_recipe_by_id,
     )
 
     monkeypatch.setattr(
-        "src.models.recipe.get_like_by_recipe",
+        "src.router.food_router.get_like_by_recipe",
         fake_get_like_by_recipe,
     )
 
@@ -75,8 +77,9 @@ def test_recipe_get_id_402error(client, monkeypatch):
     def fake_get_recipe_by_id(id_recipe):
         raise HTTPException(status_code=402, detail='Your daily points limit of 50 has been reached')
 
+    # Patch the function as referenced by the router to simulate a 402 response
     monkeypatch.setattr(
-        "src.services.food_service_spoonacular.get_recipe_by_id",
+        "src.router.food_router.get_recipe_by_id",
         fake_get_recipe_by_id,
     )
 
