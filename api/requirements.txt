@@ -9,3 +9,8 @@ psycopg2-binary
 typing-extensions>=4.10.0
 pydantic==2.6.4
 httpx==0.27.0
+pandas
+numpy
+scipy
+mlflow
+scikit-learn
