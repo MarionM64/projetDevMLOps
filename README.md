@@ -21,7 +21,7 @@ FRONT :
 
 # Lancer le projet en local : 
 
-- docker-compose up -d --build
+- docker compose up -d --build ou docker-compose up -d --build
 
 - pour avoir accès au différentes fonctions du back : http://localhost:8000/docs
 - pour avoir accès au site (front et back) : http://localhost:5173/templates/index.html
