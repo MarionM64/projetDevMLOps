@@ -1,7 +1,7 @@
 # Environnements virtuels
 venv/
 .venv/
-api/.env/
+env/
 .env/
 
 # Fichiers Python

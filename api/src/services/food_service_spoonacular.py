@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import requests
 from prometheus_client import Counter
+from fastapi import HTTPException
 from src.models.recipe import add_like_recipe, add_recipe
 
 # Charger les variables d'environnement depuis le fichier .env
@@ -43,6 +44,9 @@ def get_recipe_by_id(id_recipe):
         #add_like_recipe(id_recipe)
         return response.json()
     else:
+        # If the API returns 402 (daily quota reached), raise an HTTPException so the router can propagate it
+        if response.status_code == 402:
+            raise HTTPException(status_code=402, detail=response.text)
         print(f"Erreur {response.status_code}: {response.text}")
         return None
     
