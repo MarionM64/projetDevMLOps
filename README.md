@@ -1,25 +1,67 @@
 # projetDevMLOPS
+Application en anglais car l'API de recettes que nous utilisons est en anglais.
 
-Grafana
+# Description
+
+Cette aplication permet de rechercher des recettes par engrédients et nutriments, elle propose aussi des sugestions en fonction des recettes déjà likées par les différentes personnes utilisant l'application.
+
+
+# Fonctionalitées
+
+BACK :
+- recher de recette
+- visualisation d'une recette
+- like d'une recette
+- voir les recommandations de l'IA
+
+FRONT : 
+- facilité d'utilisation, intuitif
+
+
+# Lancer le projet en local : 
+
+- docker-compose up -d --build
+
+- pour avoir accès au différentes focntions du bac : http://localhost:8000/docs
+- pour avoir accès au site (front et back) : http://localhost:5173/templates/index.html
+- accès bdd : http://localhost:8080/ (sélectioner System : PostgreSQl ; server : db ; Username : user ; Password : password ; Database : food_bd)
+
+
+# Clef API Spoonacular
+
+Nous avons utilisé des clef gratuite avec un accès limité journalier (nombres de requettes limitées par jour)
+Voici les différentes clef que nous avons généré : 
+- c86fe6290a32478dad234905a465967d
+- 0021762ed6ec47e8a69feb6d7d83aea1
+- d151f6b398864fcca6acf14e7e62dff7
+
+
+# Lien GitHub Pages : 
+
+- lien github pages : https://marionm64.github.io/projetDevMLOps/
+
+
+# Grafana
+
 http://localhost:3000
-mdp =  admin/admin
+identifiant et mot de passe =  admin/admin
 
-Prometheus
+
+# Prometheus
+
 http://localhost:9090
 
 
 
-UTILISATION GRAFANA : 
-- pour créer connecter grafane et prometheus, 
-connections -> data sources -> add nex data source -> sélectionner prometheus -> mettre l'url : http//ip_ordi:9090 -> save
+# Utilisation Grafana
 
-- pour observer les metrics :
+- pour connecter grafana et prometheus, sur grafana : 
+connections -> data sources -> add new data source -> sélectionner prometheus -> mettre l'url : http//ip_ordi:9090 -> save
+
+- pour observer les metrics sur grafana :
 connection-> Data sources -> build a bashboard -> add visualization -> prometheus -> select metrics -> run queries -> save bashboard
 
 
+# MLFlow
 
-LIEN PROJET : 
-- lien front en local : http://localhost:5173/templates/index.html
-
-- lien github pages : https://marionm64.github.io/projetDevMLOps/
 
