@@ -1,4 +1,5 @@
 # projetDevMLOPS
+
 Application en anglais car l'API de recettes que nous utilisons est en anglais.
 
 # Description
@@ -22,7 +23,7 @@ FRONT :
 
 - docker-compose up -d --build
 
-- pour avoir accès au différentes focntions du bac : http://localhost:8000/docs
+- pour avoir accès au différentes fonctions du back : http://localhost:8000/docs
 - pour avoir accès au site (front et back) : http://localhost:5173/templates/index.html
 - accès bdd : http://localhost:8080/ (sélectioner System : PostgreSQl ; server : db ; Username : user ; Password : password ; Database : food_bd)
 
@@ -43,8 +44,7 @@ https://marionm64.github.io/projetDevMLOps/
 
 # Grafana
 
-http://localhost:3000
-identifiant et mot de passe =  admin/admin
+http://localhost:3000 | identifiant et mot de passe =  admin/admin
 
 
 # Prometheus
