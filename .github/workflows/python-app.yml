@@ -40,5 +40,5 @@ jobs:
         python -m pip freeze
     - name: Test with pytest
       run: |
-        pytest api/test.py
+        pytest api/test_recipe.py
     
