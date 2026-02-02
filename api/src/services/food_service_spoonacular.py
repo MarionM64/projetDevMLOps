@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import requests
-
+from prometheus_client import Counter
 from src.models.recipe import add_like_recipe, add_recipe
 
 # Charger les variables d'environnement depuis le fichier .env
@@ -10,6 +10,8 @@ load_dotenv()
 # Récupérer la clé API
 API_KEY = os.getenv("API_FOOD_KEY")
 BASE_URL = "https://api.spoonacular.com/recipes"
+
+
 
 #recherche de recettes
 def research_recipe(query):
@@ -39,6 +41,7 @@ def get_recipe_by_id(id_recipe):
     response = requests.get(endpoint, params=params)
     if response.status_code == 200:
         #add_like_recipe(id_recipe)
+        recipe_api_counter.inc()
         return response.json()
     else:
         print(f"Erreur {response.status_code}: {response.text}")
