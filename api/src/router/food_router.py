@@ -26,5 +26,7 @@ async def researchRecipe(query : str):
 
 @router.get("/recommend/recipe", tags=["recommend"])
 async def recommendRecipe():
-    return recommend_implicit()
+    res = recommend_implicit()
+
+    return {"results": [get_recipe_by_id(id) for [id, _, _] in res]}
 
