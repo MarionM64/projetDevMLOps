@@ -4,7 +4,7 @@ Application en anglais car l'API de recettes que nous utilisons est en anglais.
 
 # Description
 
-Cette aplication permet de rechercher des recettes par engrédients et nutriments, elle propose aussi des sugestions en fonction des recettes déjà likées par les différentes personnes utilisant l'application.
+Cette aplication permet de rechercher des recettes par engrédients, nom de plat générique (exemples : pasta, cupcake, tiramisu) et nutriments, elle propose aussi des sugestions en fonction des recettes déjà likées par les différentes personnes utilisant l'application.
 
 
 # Fonctionalitées
