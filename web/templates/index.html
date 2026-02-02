@@ -3,35 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the MLOps Project</title>
+    <title>Home</title>
     <link rel="stylesheet" href="../static/styles.css">
 </head>
-<body class="container">
+<body  class="container">
     <header>
+        <article>
+            <a href="index.html">Home</a>
+        </article>
+    </header>
+    <main>
         <h1>
         Search recipes
         </h1>
-        <form action="">
+        <form action="" class="search-bar">
             <input
             type="search"
             name="query"
-            placeholder="Search"
+            placeholder="Name or ingredient you want in your recipe..."
             aria-label="Search"
             />
-            <input type="submit" value="Search" />
+            <input type="submit" value="Search">
         </form>
-    </header>
-    <main>
         <section class="results">
+        </section>
+        <h1>Recommendations</h1>
+        <section class="iaprops">
         </section>
     </main>
     <footer>
 
     </footer>
     <script>
+        
+
+        // fonction pour les recommendations du model
+        const propositionsSection = document.querySelector('.iaprops');
+        async function fetchIAPropositions() {
+            try {
+                const response = await fetch(`http://localhost:8000/research/recipe/chicken`); // A changer 
+                const data = await response.json();
+
+                if(data.error){
+                    propositionsSection.innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+
+                propositionsSection.innerHTML = data.results.map(recipe => `
+                    <button class="recipe-button" onclick="window.location.href='http://localhost:5173/templates/recipe.html?id=${recipe.id}'">
+                    <article class="recipe">
+                        <h2>${recipe.title}</h2>
+                        <img src="${recipe.image}" alt="No image"/>
+                    </article>
+                    </button>
+                `).join('');
+            }catch (error){
+                propositionsSection.innerHTML = `<p>Error fetching results: ${error.message}</p>`;
+            }
+        }
+
+        fetchIAPropositions();
+
+
+
+        // fonction pour la recherche de recette
         const form = document.querySelector('form');
         const resultsSection = document.querySelector('.results');
-
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
             const query = form.query.value;
@@ -62,7 +99,6 @@
             } catch (error) {
                 resultsSection.innerHTML = `<p>Error fetching results: ${error.message}</p>`;
             }
-            
         });
     </script>
 </body>

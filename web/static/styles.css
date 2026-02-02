@@ -2800,3 +2800,66 @@ textarea,
     transition-duration: 0s !important;
   }
 }
+
+
+body.container {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.search-bar input[type="submit"] {
+  width: auto;
+}
+
+.results,
+.iaprops {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.recipe-button {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.recipe {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.recipe img {
+  width: 100%;
+  height: auto;
+  max-height: 60%;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.recipe h2 {
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  line-height: 1.2;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
