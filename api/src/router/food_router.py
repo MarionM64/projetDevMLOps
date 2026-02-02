@@ -23,6 +23,7 @@ async def getRecipe(id : int):
     res = get_recipe_by_id(id)
     if res != None :
         res["like"]= get_like_by_recipe(id)
+    recipe_api_counter.inc()
     return res
 
 
