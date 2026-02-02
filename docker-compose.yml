@@ -9,9 +9,14 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
     restart: on-failure
     networks:
       - projet-network
+
 
   web:
     container_name: web
@@ -29,7 +34,6 @@ services:
   db:
     image: postgres
     container_name: db
-    restart: always
     # set shared memory limit when using docker compose
     shm_size: 128mb
     # or set shared memory limit when deploy via swarm stack
@@ -42,6 +46,12 @@ services:
       POSTGRES_DB: food_bd
       POSTGRES_PASSWORD: password
       POSTGRES_USER: user
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     networks:
       - projet-network
 
