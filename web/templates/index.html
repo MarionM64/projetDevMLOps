@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the MLOps Project</title>
+    <title>Home</title>
     <link rel="stylesheet" href="../static/styles.css">
 </head>
-<body class="container">
+<body  class="container">
     <header>
+        <article>
+            <a href="index.html">Home</a>
+        </article>
+    </header>
+    <main>
         <h1>
         Search recipes
         </h1>
-        <form action="">
+        <form action="" class="search-bar">
             <input
             type="search"
             name="query"
-            placeholder="Search"
+            placeholder="Name or ingredient you want in your recipe..."
             aria-label="Search"
             />
-            <input type="submit" value="Search" />
+            <input type="submit" value="Search">
         </form>
-    </header>
-    <main>
         <section class="results">
         </section>
         <h1>Recommendations</h1>
