@@ -41,7 +41,7 @@
         const propositionsSection = document.querySelector('.iaprops');
         async function fetchIAPropositions() {
             try {
-                const response = await fetch(`http://localhost:8000/research/recipe/chicken`); // A changer 
+                const response = await fetch(`http://localhost:8000/recommend/recipe`);
                 const data = await response.json();
 
                 if(data.error){
