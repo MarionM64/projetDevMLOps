@@ -1,4 +1,5 @@
-# Environnements virtuels
+# Environnements virtuels et .env
+env/
 .env
 
 # Fichiers Python
