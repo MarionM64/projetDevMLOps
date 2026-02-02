@@ -47,5 +47,6 @@ async def researchRecipe(query : str):
 
 @router.get("/recommend/recipe", tags=["recommend"])
 async def recommendRecipe():
+    
     return recommend_implicit()
 
