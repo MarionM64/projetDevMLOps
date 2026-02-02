@@ -9,7 +9,7 @@ Cette aplication permet de rechercher des recettes par engrédients et nutriment
 # Fonctionalitées
 
 BACK :
-- recher de recette
+- recherche de recette
 - visualisation d'une recette
 - like d'une recette
 - voir les recommandations de l'IA
@@ -38,7 +38,7 @@ Voici les différentes clef que nous avons généré :
 
 # Lien GitHub Pages : 
 
-- lien github pages : https://marionm64.github.io/projetDevMLOps/
+https://marionm64.github.io/projetDevMLOps/
 
 
 # Grafana
@@ -55,10 +55,10 @@ http://localhost:9090
 
 # Utilisation Grafana
 
-- pour connecter grafana et prometheus, sur grafana : 
+- Pour connecter grafana et prometheus, sur grafana : 
 connections -> data sources -> add new data source -> sélectionner prometheus -> mettre l'url : http//ip_ordi:9090 -> save
 
-- pour observer les metrics sur grafana :
+- Pour observer les metrics sur grafana :
 connection-> Data sources -> build a bashboard -> add visualization -> prometheus -> select metrics -> run queries -> save bashboard
 
 
