@@ -1,9 +1,5 @@
 # Environnements virtuels
-./.env
-venv/
-.env/
 .env
-.venv/
 
 # Fichiers Python
 __pycache__/
