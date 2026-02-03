@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import os
 import requests
-
+from prometheus_client import Counter
+from fastapi import HTTPException
 from src.models.recipe import add_like_recipe, add_recipe
 
 # Charger les variables d'environnement depuis le fichier .env
@@ -10,6 +11,8 @@ load_dotenv()
 # Récupérer la clé API
 API_KEY = os.getenv("API_FOOD_KEY")
 BASE_URL = "https://api.spoonacular.com/recipes"
+
+
 
 #recherche de recettes
 def research_recipe(query):
@@ -41,6 +44,9 @@ def get_recipe_by_id(id_recipe):
         #add_like_recipe(id_recipe)
         return response.json()
     else:
+        # If the API returns 402 (daily quota reached), raise an HTTPException so the router can propagate it
+        if response.status_code == 402:
+            raise HTTPException(status_code=402, detail=response.text)
         print(f"Erreur {response.status_code}: {response.text}")
         return None
     
