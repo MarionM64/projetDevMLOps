@@ -22,7 +22,7 @@ FRONT :
 # Lancer le projet en local : 
 
 - créer un .env à la racine du projet en copiant collant .env.example
-- docker compose up -d --build ou docker-compose up -d --build
+- docker compose up --build ou docker-compose up --build
 
 - pour avoir accès au différentes fonctions du back : http://localhost:8000/docs
 - pour avoir accès au site (front et back) : http://localhost:5173/templates/index.html

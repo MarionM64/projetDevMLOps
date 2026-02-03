@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from model.tests.model import entrainement_modele
 from src.services.food_service_spoonacular import research_recipe
 from src.models.recipe import init_db
 import src.router.food_router as food_router
@@ -19,6 +20,9 @@ app.include_router(food_router.router)
 try:
     init_db()
     research_recipe("pasta")
+    research_recipe("chocolate")
+    research_recipe("chicken")
+    entrainement_modele()
 except Exception as e:
     print(f"Erreur lors de l'initialisation: {e}")
 

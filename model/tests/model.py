@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from src.models.recipe import get_recipes
 import numpy as np
 import scipy.sparse as sparse
 import pickle
@@ -16,8 +15,10 @@ def charger_bdd():
     """"
     charge les recettes depuis la base de données et les met dans un DataFrame pandas
     """
-    recettes = get_recipes()
-    df_recettes = pd.DataFrame(recettes, columns=['id', 'nom', 'like'])
+    chemin_fichier = "model/tests/data.csv"
+    
+    # Charger le CSV dans un DataFrame
+    df_recettes = pd.read_csv(chemin_fichier, usecols=['id', 'nom', 'like'])
     return df_recettes
 
 
@@ -30,14 +31,17 @@ def charger_likes_utilisateur():
     return likes_utilisateur
 
 
-mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("Recommendation_model")
-def entrainement_modele():
 
+def entrainement_modele():
+    print("0")
+    mlflow.set_tracking_uri("http://localhost:5000")
+    print("1")
+    mlflow.set_experiment("Recommendation_model")
+    print("2")
     #charger les données
     df_recettes = charger_bdd()
     likes_utilisateur = charger_likes_utilisateur()
-
+    print("3")
     with mlflow.start_run(run_name="Content-Based Filtering"):
         #logger les parametres sur mlflow
         params = {
@@ -46,6 +50,7 @@ def entrainement_modele():
             "analyzer": "word",
             "algorithm": "Cosine Similarity"
         }
+        print("4")
         mlflow.log_params(params)
         
         print("Vectorisation des recettes...")
@@ -197,3 +202,6 @@ def recommend_implicit(N=5):
             break
             
     return recommendations
+
+
+get_modeles()
