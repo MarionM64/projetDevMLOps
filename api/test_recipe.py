@@ -3,16 +3,18 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import sys
 from pathlib import Path
+from fastapi import HTTPException
+from src.router.food_router import router as food_router
+
 
 ROOT = Path(__file__).resolve().parents[1]
 API_DIR = ROOT / "api"
 
-# Ensure src package is importable
+# Ajouter le répertoire API au sys.path pour les imports
 if str(API_DIR) not in sys.path:
     sys.path.insert(0, str(API_DIR))
 
-from src.router.food_router import router as food_router
-
+#création de l'application FastAPI pour les tests 
 @pytest.fixture
 def app():
     a = FastAPI()
@@ -26,11 +28,11 @@ def client(app):
 
 
 def test_recipe_get_id_404error(client, monkeypatch):
-    # simulate service returning None (recipe not found)
+    # Simule la fonction du service food_service_spoonacular retournant None (recette non trouvée)
     def fake_get_recipe_by_id(id_recipe):
         return None
 
-    # Patch the function as referenced by the router to avoid calling the real external API
+    # Patch la fonction comme référencée par le routeur pour éviter d'appeler la vraie API externe
     monkeypatch.setattr(
         "src.router.food_router.get_recipe_by_id",
         fake_get_recipe_by_id,
@@ -51,7 +53,7 @@ def test_recipe_get_id_success(client, monkeypatch):
     def fake_get_like_by_recipe(id_recipe):
         return 5
 
-    # Patch the functions as referenced by the router to avoid calling external services
+    # Patch les fonctions comme référencées par le routeur pour éviter d'appeler la vraie API externe
     monkeypatch.setattr(
         "src.router.food_router.get_recipe_by_id",
         fake_get_recipe_by_id,
@@ -71,18 +73,15 @@ def test_recipe_get_id_success(client, monkeypatch):
 
 
 def test_recipe_get_id_402error(client, monkeypatch):
-    # simulate the external API returning a 402 error by raising HTTPException in the service
-    from fastapi import HTTPException
-
+    # Simule une erreur 402 de l'API Spoonacular
     def fake_get_recipe_by_id(id_recipe):
         raise HTTPException(status_code=402, detail='Your daily points limit of 50 has been reached')
 
-    # Patch the function as referenced by the router to simulate a 402 response
+    # Patch la fonction comme référencée par le routeur pour éviter d'appeler la vraie API externe
     monkeypatch.setattr(
         "src.router.food_router.get_recipe_by_id",
         fake_get_recipe_by_id,
     )
-
-    r = client.get("/recipe/999")
+    r = client.get("/recipe/-1")
     assert r.status_code == 402
     assert "points" in r.json()["detail"]

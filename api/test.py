@@ -28,10 +28,11 @@ def client(app):
     return TestClient(app)
 
 def _test_recipe_get_id_404error(client, monkeypatch):
-    # simulate service returning None (recipe not found)
+    # Simule la fonction du service food_service_spoonacular retournant None (recette non trouvée)
     def fake_get_recipe_by_id(id_recipe):
         return None
 
+    # Patch la fonction comme référencée par le routeur pour éviter d'appeler la vraie API externe
     monkeypatch.setattr(
         "src.services.food_service_spoonacular.get_recipe_by_id",
         fake_get_recipe_by_id,
@@ -51,6 +52,7 @@ def _test_recipe_get_id_success(client, monkeypatch):
     def fake_get_like_by_recipe(id_recipe):
         return 5
 
+    # Patch les fonctions comme référencées par le routeur pour éviter d'appeler la vraie API externe
     monkeypatch.setattr(
         "src.services.food_service_spoonacular.get_recipe_by_id",
         fake_get_recipe_by_id,
