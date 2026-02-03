@@ -21,9 +21,9 @@ recipe_404_counter = Counter(
     "Nombre de recettes non trouvées",
 )
 
+# retourne le descriptif détaillé d'une recette en fonction de son Id
 @router.get("/recipe/{id}", tags=["recipe"])
 async def getRecipe(id: int):
-    # call service synchronously; service returns None if recipe not found
     res = get_recipe_by_id(id)
     if res is None:
         recipe_404_counter.inc()
@@ -33,18 +33,20 @@ async def getRecipe(id: int):
     return res
 
 
-
+# ajouter un like à une recette
 @router.put("/recipe/like/{id}", tags=["recipe"])
 async def likeRecipe(id : int):
     recipe_track_total_like.inc()
     return add_like_recipe(id)
 
+# fait une recherche de recettes en fonctions d'un ingrédient, d'un nom générique (exemple: pasta), d'un nutriment
 @router.get("/research/recipe/{query}", tags=["research"])
 async def researchRecipe(query : str):
     recipe_api_counter.inc(30)
     return research_recipe(query)
 
 
+# indique cinq suggestions de recettes
 @router.get("/recommend/recipe", tags=["recommend"])
 async def recommendRecipe():
     res = recommend_implicit()
