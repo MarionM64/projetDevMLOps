@@ -20,9 +20,6 @@ app.include_router(food_router.router)
 try:
     init_db()
     research_recipe("pasta")
-    research_recipe("chocolate")
-    research_recipe("chicken")
-    entrainement_modele()
 except Exception as e:
     print(f"Erreur lors de l'initialisation: {e}")
 
