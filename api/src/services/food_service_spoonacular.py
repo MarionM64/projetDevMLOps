@@ -32,7 +32,7 @@ def research_recipe(query):
         print(f"Erreur {response.status_code}: {response.text}")
         return None
 
-
+# récupérer une recette par son Id
 def get_recipe_by_id(id_recipe):
     endpoint = f"{BASE_URL}/{id_recipe}/information"
     params = {
@@ -41,10 +41,9 @@ def get_recipe_by_id(id_recipe):
     }
     response = requests.get(endpoint, params=params)
     if response.status_code == 200:
-        #add_like_recipe(id_recipe)
         return response.json()
     else:
-        # If the API returns 402 (daily quota reached), raise an HTTPException so the router can propagate it
+        # Si l'API retourne 402 (quota quotidien atteint), lever une HTTPException pour que le routeur puisse le partager
         if response.status_code == 402:
             raise HTTPException(status_code=402, detail=response.text)
         print(f"Erreur {response.status_code}: {response.text}")
