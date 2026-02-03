@@ -5,6 +5,7 @@ import numpy as np
 import scipy.sparse as sparse
 import pickle
 import mlflow
+import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -28,40 +29,34 @@ def charger_likes_utilisateur():
     likes_utilisateur = df_recettes['id'].sample(n=nb_a_selectionner).tolist()
     return likes_utilisateur
 
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("Recommendation_model")
 def entrainement_modele():
 
-    mlflow.set_experiment("Recommendation_model")
     #charger les données
     df_recettes = charger_bdd()
     likes_utilisateur = charger_likes_utilisateur()
 
-
-    with mlflow.start_run():
-        # Paramètres NLP
-        min_df = 1
-        ngram_range = (1, 2) # On prend les mots seuls et les paires ("Gâteau", "Gâteau Chocolat")
+    with mlflow.start_run(run_name="Content-Based Filtering"):
+        #logger les parametres sur mlflow
+        params = {
+            "min_df": 1,
+            "ngram_range": (1, 2),
+            "analyzer": "word",
+            "algorithm": "Cosine Similarity"
+        }
+        mlflow.log_params(params)
         
-        mlflow.log_params({"min_df": min_df, "ngram_range": str(ngram_range)})
-
         print("Vectorisation des recettes...")
         # TF-IDF va transformer les noms en vecteurs mathématiques
-        tfidf = TfidfVectorizer(min_df=min_df, ngram_range=ngram_range)
+        tfidf = TfidfVectorizer(min_df=params["min_df"], ngram_range=params["ngram_range"])
+
         # On crée la "Matrice des Recettes"
         tfidf_matrix = tfidf.fit_transform(df_recettes['nom'])
-        
-        # Sauvegarde du Vectorizer (C'est ça le "modèle" maintenant)
-        with open('tfidf.pkl', 'wb') as f:
-            pickle.dump(tfidf, f)
-            
-        # On sauvegarde aussi la matrice des recettes (pour ne pas la recalculer à chaque requête)
-        with open('tfidf_matrix.pkl', 'wb') as f:
-            pickle.dump(tfidf_matrix, f)
-            
-        mlflow.log_artifact('tfidf.pkl')
-        mlflow.log_artifact('tfidf_matrix.pkl')
-        print("Modèle Content-Based sauvegardé.")
 
-        #metriques mlflow
+        #logger les metriques sur mlflow
+        #calcul du profil utilisateur
         liked_df = df_recettes[df_recettes['id'].isin(likes_utilisateur)]
         user_vectors = tfidf.transform(liked_df['nom'])
         user_profile = np.mean(user_vectors, axis=0)
@@ -80,20 +75,51 @@ def entrainement_modele():
                 top_scores.append(cosine_sim[idx])
             if len(top_scores) >= 3:
                 break
-                
-        # MÈTRIQUE 1 : Confiance Moyenne
-        # (Est-ce que le modèle trouve des trucs très ressemblants ?)
-        avg_similarity = np.mean(top_scores) if top_scores else 0
+
+        # On récupère les scores des items NON likés
+        scores_candidats = [
+                score for idx, score in enumerate(cosine_sim) 
+                if df_recettes.iloc[idx]['id'] not in likes_utilisateur
+            ]
+        # Calcul des stats
+        avg_sim = np.mean(scores_candidats) if scores_candidats else 0
+        max_sim = np.max(scores_candidats) if scores_candidats else 0
+            
+        metrics = {
+                "vocab_size": len(tfidf.vocabulary_),
+                "avg_similarity_score": avg_sim,
+                "max_similarity_score": max_sim,
+                "nb_recettes_base": len(df_recettes)
+        }   
+        mlflow.log_metrics(metrics)
+
         
-        # MÉTRIQUE 2 : Confiance Max
-        # (Quel est le score de la meilleure recommandation ?)
-        max_similarity = top_scores[0] if top_scores else 0
+        #logger un Artefact Graphique : 
+        # Histogramme des scores de similarité pour voir la distribution
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.hist(cosine_sim, bins=20, color='#636EFA', alpha=0.7)
+        ax.set_title("Distribution des scores de similarité (User Random)")
+        ax.set_xlabel("Score Cosine")
+        ax.set_ylabel("Nombre de recettes")
+            
+        plt.savefig("similarity_dist.png")
+        mlflow.log_artifact("similarity_dist.png")
+        plt.close()
+        os.remove("similarity_dist.png")
 
-        print(f"Métriques calculées -> Moyenne: {avg_similarity:.4f}, Max: {max_similarity:.4f}")
+        # Sauvegarder les modèles dans des fichiers
+        with open('tfidf.pkl', 'wb') as f:
+            pickle.dump(tfidf, f)
+        with open('tfidf_matrix.pkl', 'wb') as f:
+            pickle.dump(tfidf_matrix, f)
+            
+        mlflow.log_artifact('tfidf.pkl')
+        mlflow.log_artifact('tfidf_matrix.pkl')
 
-        # 4. LOGGING DANS MLFLOW
-        mlflow.log_metric("avg_similarity_score", avg_similarity)
-        mlflow.log_metric("max_similarity_score", max_similarity)
+        mlflow.set_tags({
+            "embedding": "TF-IDF",
+            "status": "prod_candidate"
+        })
     return tfidf, tfidf_matrix
 
 

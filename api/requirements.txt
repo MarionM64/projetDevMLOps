@@ -14,3 +14,4 @@ numpy
 scipy
 mlflow
 scikit-learn
+matplotlib
