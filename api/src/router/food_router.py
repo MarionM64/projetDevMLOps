@@ -1,8 +1,8 @@
+from src.services.mlflow_service import get_recommendations
 from fastapi import APIRouter, FastAPI, HTTPException
 from prometheus_client import Counter
 from src.models.recipe import add_like_recipe, get_like_by_recipe
 from src.services.food_service_spoonacular import research_recipe, get_recipe_by_id
-from model.model import recommend_implicit
 
 router = APIRouter()
 
@@ -49,7 +49,8 @@ async def researchRecipe(query : str):
 # indique cinq suggestions de recettes
 @router.get("/recommend/recipe", tags=["recommend"])
 async def recommendRecipe():
-    res = recommend_implicit()
-
+    res = get_recommendations()
     return {"results": [get_recipe_by_id(id) for [id, _, _] in res]}
+
+
 

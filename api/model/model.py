@@ -1,10 +1,11 @@
 import os
+import tempfile
 import pandas as pd
-from src.models.recipe import get_recipes
 import numpy as np
 import scipy.sparse as sparse
 import pickle
 import mlflow
+import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -15,8 +16,10 @@ def charger_bdd():
     """"
     charge les recettes depuis la base de données et les met dans un DataFrame pandas
     """
-    recettes = get_recipes()
-    df_recettes = pd.DataFrame(recettes, columns=['id', 'nom', 'like'])
+    chemin_fichier = "model/data.csv"
+    
+    # Charger le CSV dans un DataFrame
+    df_recettes = pd.read_csv(chemin_fichier, usecols=['id', 'nom', 'like'])
     return df_recettes
 
 
@@ -28,40 +31,108 @@ def charger_likes_utilisateur():
     likes_utilisateur = df_recettes['id'].sample(n=nb_a_selectionner).tolist()
     return likes_utilisateur
 
+class RecommendationModel(mlflow.pyfunc.PythonModel):
+
+    def load_context(self, context):
+        with open(context.artifacts["tfidf"], "rb") as f:
+            self.tfidf = pickle.load(f)
+
+        with open(context.artifacts["tfidf_matrix"], "rb") as f:
+            self.tfidf_matrix = pickle.load(f)
+
+
+    # FONCTION DE RECOMMANDATION basé sur recommend_implicit
+    def predict(self, context, df_recettes):
+
+        """
+        Recommande des recettes basées sur le contenu des recettes likées.
+        """
+        # on charge les données
+        N=5
+        nb_a_selectionner = min(5, len(df_recettes)) 
+
+        
+        # Récupérer les index des recettes que l'utilisateur a aimées
+        # On filtre le DataFrame pour ne garder que les likes
+        liked_recipes_df = df_recettes[df_recettes["like"] > 0]  
+
+        if liked_recipes_df.empty:
+            nb_a_selectionner = min(N, len(df_recettes))
+            return df_recettes.sample(n=nb_a_selectionner)[['id', 'nom']].apply(
+                lambda row: (row['id'], row['nom'], 0), axis=1
+            ).tolist()
+        
+        # On transforme les noms des recettes likées en vecteurs
+        user_vectors = self.tfidf.transform(liked_recipes_df['nom'])
+        
+        # On fait la MOYENNE des vecteurs (Le goût moyen de l'utilisateur)
+        user_profile = np.mean(user_vectors, axis=0)
+        
+        # Pour que Scikit-learn accepte le format, on s'assure que c'est bien un array 2D
+        user_profile = np.asarray(user_profile)
+
+        # 3. Calculer la similarité avec TOUTES les recettes
+        # Cosine Similarity : 1 = Identique, 0 = Rien à voir
+        cosine_sim = cosine_similarity(user_profile, self.tfidf_matrix)
+        
+        # cosine_sim est une liste de scores [[0.1, 0.9, 0.05...]]
+        # On l'aplatit pour avoir une liste simple
+        scores = cosine_sim.flatten()
+        
+        # 4. Trier les résultats
+        # argsort donne les indices triés du plus petit au plus grand, on inverse avec [::-1]
+        sorted_indices = scores.argsort()[::-1]
+
+        # S'assurer que les indices ne dépassent pas la taille du DataFrame
+        sorted_indices = [i for i in sorted_indices if i < len(df_recettes)]
+
+        
+        recommendations = []
+        liked_ids = liked_recipes_df['id'].tolist()
+        for idx in sorted_indices:
+            recette_id = int(df_recettes.iloc[idx]['id'])
+            recette_nom = str(df_recettes.iloc[idx]['nom'])
+            score = float(scores[idx])
+            
+            # On ne recommande pas ce qu'il a déjà liké
+            if recette_id not in liked_ids:
+                recommendations.append((recette_id, recette_nom, round(score, 2)))
+                
+            if len(recommendations) >= 5:
+                break
+                
+        return recommendations
+
 def entrainement_modele():
 
+    mlflow.set_tracking_uri("http://mlflow:5000")
+
     mlflow.set_experiment("Recommendation_model")
+
     #charger les données
     df_recettes = charger_bdd()
     likes_utilisateur = charger_likes_utilisateur()
 
+    with mlflow.start_run(run_name="Content-Based Filtering"):
+        #logger les parametres sur mlflow
+        params = {
+            "min_df": 1,
+            "ngram_range": (1, 2),
+            "analyzer": "word",
+            "algorithm": "Cosine Similarity"
+        }
 
-    with mlflow.start_run():
-        # Paramètres NLP
-        min_df = 1
-        ngram_range = (1, 2) # On prend les mots seuls et les paires ("Gâteau", "Gâteau Chocolat")
+        mlflow.log_params(params)
         
-        mlflow.log_params({"min_df": min_df, "ngram_range": str(ngram_range)})
-
         print("Vectorisation des recettes...")
         # TF-IDF va transformer les noms en vecteurs mathématiques
-        tfidf = TfidfVectorizer(min_df=min_df, ngram_range=ngram_range)
+        tfidf = TfidfVectorizer(min_df=params["min_df"], ngram_range=params["ngram_range"])
+
         # On crée la "Matrice des Recettes"
         tfidf_matrix = tfidf.fit_transform(df_recettes['nom'])
-        
-        # Sauvegarde du Vectorizer (C'est ça le "modèle" maintenant)
-        with open('tfidf.pkl', 'wb') as f:
-            pickle.dump(tfidf, f)
-            
-        # On sauvegarde aussi la matrice des recettes (pour ne pas la recalculer à chaque requête)
-        with open('tfidf_matrix.pkl', 'wb') as f:
-            pickle.dump(tfidf_matrix, f)
-            
-        mlflow.log_artifact('tfidf.pkl')
-        mlflow.log_artifact('tfidf_matrix.pkl')
-        print("Modèle Content-Based sauvegardé.")
 
-        #metriques mlflow
+        #logger les metriques sur mlflow
+        #calcul du profil utilisateur
         liked_df = df_recettes[df_recettes['id'].isin(likes_utilisateur)]
         user_vectors = tfidf.transform(liked_df['nom'])
         user_profile = np.mean(user_vectors, axis=0)
@@ -80,94 +151,69 @@ def entrainement_modele():
                 top_scores.append(cosine_sim[idx])
             if len(top_scores) >= 3:
                 break
-                
-        # MÈTRIQUE 1 : Confiance Moyenne
-        # (Est-ce que le modèle trouve des trucs très ressemblants ?)
-        avg_similarity = np.mean(top_scores) if top_scores else 0
+
+        # On récupère les scores des items NON likés
+        scores_candidats = [
+                score for idx, score in enumerate(cosine_sim) 
+                if df_recettes.iloc[idx]['id'] not in likes_utilisateur
+            ]
+        # Calcul des stats
+        avg_sim = np.mean(scores_candidats) if scores_candidats else 0
+        max_sim = np.max(scores_candidats) if scores_candidats else 0
+            
+        metrics = {
+                "vocab_size": len(tfidf.vocabulary_),
+                "avg_similarity_score": avg_sim,
+                "max_similarity_score": max_sim,
+                "nb_recettes_base": len(df_recettes)
+        }   
+        mlflow.log_metrics(metrics)
+
         
-        # MÉTRIQUE 2 : Confiance Max
-        # (Quel est le score de la meilleure recommandation ?)
-        max_similarity = top_scores[0] if top_scores else 0
+        #logger un Artefact Graphique : 
+        # Histogramme des scores de similarité pour voir la distribution
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.hist(cosine_sim, bins=20, color='#636EFA', alpha=0.7)
+        ax.set_title("Distribution des scores de similarité (User Random)")
+        ax.set_xlabel("Score Cosine")
+        ax.set_ylabel("Nombre de recettes")
+            
+        plt.savefig("similarity_dist.png")
+        mlflow.log_artifact("similarity_dist.png")
+        plt.close()
+        os.remove("similarity_dist.png")
 
-        print(f"Métriques calculées -> Moyenne: {avg_similarity:.4f}, Max: {max_similarity:.4f}")
+        # Sauvegarder les modèles dans des fichiers
+        with open('tfidf.pkl', 'wb') as f:
+            pickle.dump(tfidf, f)
+        with open('tfidf_matrix.pkl', 'wb') as f:
+            pickle.dump(tfidf_matrix, f)
+            
+        mlflow.log_artifact('tfidf.pkl')
+        mlflow.log_artifact('tfidf_matrix.pkl')
 
-        # 4. LOGGING DANS MLFLOW
-        mlflow.log_metric("avg_similarity_score", avg_similarity)
-        mlflow.log_metric("max_similarity_score", max_similarity)
+        mlflow.pyfunc.log_model(
+            artifact_path="model",
+            python_model=RecommendationModel(),
+            artifacts={
+                "tfidf": "tfidf.pkl",
+                "tfidf_matrix": "tfidf_matrix.pkl"
+            },
+            registered_model_name="Recommendation_model"
+        )
+
+    client = mlflow.MlflowClient()
+    versions = client.get_latest_versions(
+        "Recommendation_model", stages=["None"]
+    )
+
+    if versions:
+        client.transition_model_version_stage(
+            name="Recommendation_model",
+            version=versions[0].version,
+            stage="Production"
+        )
+        print("Modèle mis en Production")
+
+
     return tfidf, tfidf_matrix
-
-
-
-def get_modeles():
-    """
-    Tente de charger les modèles. S'ils n'existent pas, lance l'entraînement.
-    """
-    # On vérifie si les deux fichiers existent
-    if os.path.exists('tfidf.pkl') and os.path.exists('tfidf_matrix.pkl'):
-        try:
-            # Chargement des modèles depuis les fichiers
-            with open('tfidf.pkl', 'rb') as f:
-                tfidf = pickle.load(f)
-            with open('tfidf_matrix.pkl', 'rb') as f:
-                tfidf_matrix = pickle.load(f)
-            return tfidf, tfidf_matrix
-            
-        except (EOFError, pickle.UnpicklingError):
-            # Fichiers corrompus -> On relance l'entraînement
-            return entrainement_modele()
-    else:
-        #Fichiers absents -> On lance l'entraînement
-        return entrainement_modele()
-    
-
-# --- 3. FONCTION DE RECOMMANDATION ---
-def recommend_implicit(N=5):
-    """
-    Recommande des recettes basées sur le contenu des recettes likées.
-    """
-    # Charger les données
-    df_recettes = charger_bdd()
-    likes_utilisateur = charger_likes_utilisateur()
-    tfidf, tfidf_matrix = get_modeles()
-    # Récupérer les index des recettes que l'utilisateur a aimées
-    # On filtre le DataFrame pour ne garder que les likes
-    liked_recipes_df = df_recettes[df_recettes['id'].isin(likes_utilisateur)]
-    
-    if liked_recipes_df.empty:
-        return [] 
-    
-    # On transforme les noms des recettes likées en vecteurs
-    user_vectors = tfidf.transform(liked_recipes_df['nom'])
-    
-    # On fait la MOYENNE des vecteurs (Le goût moyen de l'utilisateur)
-    user_profile = np.mean(user_vectors, axis=0)
-    
-    # Pour que Scikit-learn accepte le format, on s'assure que c'est bien un array 2D
-    user_profile = np.asarray(user_profile)
-
-    # 3. Calculer la similarité avec TOUTES les recettes
-    # Cosine Similarity : 1 = Identique, 0 = Rien à voir
-    cosine_sim = cosine_similarity(user_profile, tfidf_matrix)
-    
-    # cosine_sim est une liste de scores [[0.1, 0.9, 0.05...]]
-    # On l'aplatit pour avoir une liste simple
-    scores = cosine_sim.flatten()
-    
-    # 4. Trier les résultats
-    # argsort donne les indices triés du plus petit au plus grand, on inverse avec [::-1]
-    sorted_indices = scores.argsort()[::-1]
-    
-    recommendations = []
-    for idx in sorted_indices:
-        recette_id = int(df_recettes.iloc[idx]['id'])
-        recette_nom = str(df_recettes.iloc[idx]['nom'])
-        score = float(scores[idx])
-        
-        # On ne recommande pas ce qu'il a déjà liké
-        if recette_id not in likes_utilisateur:
-            recommendations.append((recette_id, recette_nom, round(score, 2)))
-            
-        if len(recommendations) >= N:
-            break
-            
-    return recommendations

@@ -2,7 +2,7 @@
 venv/
 env/
 .env
-
+/data
 # Fichiers Python
 __pycache__/
 *.pyc

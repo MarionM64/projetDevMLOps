@@ -71,7 +71,6 @@ def add_recipe(recipe):
 # ajouter un like à une recette
 def add_like_recipe(id_recipe):
     recipe = get_recipe(id_recipe)
-    print(recipe)
     try:
         conn = connect_db()
         cur = conn.cursor()
