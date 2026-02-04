@@ -3,7 +3,7 @@ import psycopg2
 import os
 import time
 
-
+# Permet de se connecter à la BDD
 def connect_db():
 
     conn = psycopg2.connect(
@@ -14,7 +14,7 @@ def connect_db():
     )
     return conn
 
-
+# initialise la bdd
 def init_db():
     try:
         conn = connect_db()
@@ -32,7 +32,7 @@ def init_db():
         print("Erreur de connexion à la base de données:", e)
 
 
-
+# récupèrer une recette de la bdd en fonction de son Id
 def get_recipe(id):
     try:
         conn = connect_db()
@@ -46,6 +46,8 @@ def get_recipe(id):
     except psycopg2.OperationalError as e:
         print("Erreur de connexion à la base de données:", e)
 
+
+# ajouter un recette dans la BDD
 def add_recipe(recipe):
     id = recipe["id"]
     title = recipe["title"]
@@ -66,7 +68,7 @@ def add_recipe(recipe):
         print("déjà ajoutée")
         return True
     
-
+# ajouter un like à une recette
 def add_like_recipe(id_recipe):
     recipe = get_recipe(id_recipe)
     try:
@@ -80,7 +82,7 @@ def add_like_recipe(id_recipe):
     except psycopg2.OperationalError as e:
             print("Erreur de connexion à la base de données:", e)
 
-
+# récupérer toutes les recettes présentent en BDD
 def get_recipes():
     try:
         conn = connect_db()
@@ -94,7 +96,7 @@ def get_recipes():
     except psycopg2.OperationalError as e:
         print("Erreur de connexion à la base de données:", e)
 
-
+# récupère le nombre de likes donnés pour une recette donnée
 def get_like_by_recipe(id):
     try:
         conn = connect_db()
