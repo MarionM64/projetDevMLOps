@@ -1,8 +1,7 @@
-import random
 from fastapi import FastAPI
-from model.tests.model import entrainement_modele
+from model.model import entrainement_modele
 from src.services.food_service_spoonacular import research_recipe
-from src.models.recipe import get_recipes, init_db, add_like_recipe
+from src.models.recipe import get_recipes, init_db
 import src.router.food_router as food_router
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator

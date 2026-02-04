@@ -16,7 +16,7 @@ def charger_bdd():
     """"
     charge les recettes depuis la base de données et les met dans un DataFrame pandas
     """
-    chemin_fichier = "model/tests/data.csv"
+    chemin_fichier = "model/data.csv"
     
     # Charger le CSV dans un DataFrame
     df_recettes = pd.read_csv(chemin_fichier, usecols=['id', 'nom', 'like'])
