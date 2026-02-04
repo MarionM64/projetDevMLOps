@@ -1,4 +1,5 @@
 import os
+import tempfile
 import pandas as pd
 import numpy as np
 import scipy.sparse as sparse
@@ -30,14 +31,84 @@ def charger_likes_utilisateur():
     likes_utilisateur = df_recettes['id'].sample(n=nb_a_selectionner).tolist()
     return likes_utilisateur
 
+class RecommendationModel(mlflow.pyfunc.PythonModel):
 
+    def load_context(self, context):
+        with open(context.artifacts["tfidf"], "rb") as f:
+            self.tfidf = pickle.load(f)
+
+        with open(context.artifacts["tfidf_matrix"], "rb") as f:
+            self.tfidf_matrix = pickle.load(f)
+
+
+    # FONCTION DE RECOMMANDATION
+    def predict(self, context, df_recettes):
+
+        """
+        Recommande des recettes basées sur le contenu des recettes likées.
+        """
+        # on charge les données
+        N=5
+        nb_a_selectionner = min(5, len(df_recettes)) 
+        likes_utilisateur = df_recettes['id'].sample(n=nb_a_selectionner).tolist()
+
+        
+        # Récupérer les index des recettes que l'utilisateur a aimées
+        # On filtre le DataFrame pour ne garder que les likes
+        liked_recipes_df = df_recettes[df_recettes["like"] > 0]  
+        if liked_recipes_df.empty:
+            nb_a_selectionner = min(N, len(df_recettes))
+            return df_recettes.sample(n=nb_a_selectionner)[['id', 'nom']].apply(
+                lambda row: (row['id'], row['nom'], 0), axis=1
+            ).tolist()
+        
+        # On transforme les noms des recettes likées en vecteurs
+        user_vectors = self.tfidf.transform(liked_recipes_df['nom'])
+        
+        # On fait la MOYENNE des vecteurs (Le goût moyen de l'utilisateur)
+        user_profile = np.mean(user_vectors, axis=0)
+        
+        # Pour que Scikit-learn accepte le format, on s'assure que c'est bien un array 2D
+        user_profile = np.asarray(user_profile)
+
+        # 3. Calculer la similarité avec TOUTES les recettes
+        # Cosine Similarity : 1 = Identique, 0 = Rien à voir
+        cosine_sim = cosine_similarity(user_profile, self.tfidf_matrix)
+        
+        # cosine_sim est une liste de scores [[0.1, 0.9, 0.05...]]
+        # On l'aplatit pour avoir une liste simple
+        scores = cosine_sim.flatten()
+        
+        # 4. Trier les résultats
+        # argsort donne les indices triés du plus petit au plus grand, on inverse avec [::-1]
+        sorted_indices = scores.argsort()[::-1]
+
+        # S'assurer que les indices ne dépassent pas la taille du DataFrame
+        sorted_indices = [i for i in sorted_indices if i < len(df_recettes)]
+
+        
+        recommendations = []
+        liked_ids = liked_recipes_df['id'].tolist()
+        for idx in sorted_indices:
+            recette_id = int(df_recettes.iloc[idx]['id'])
+            recette_nom = str(df_recettes.iloc[idx]['nom'])
+            score = float(scores[idx])
+            
+            # On ne recommande pas ce qu'il a déjà liké
+            if recette_id not in liked_ids:
+                recommendations.append((recette_id, recette_nom, round(score, 2)))
+                
+            if len(recommendations) >= 5:
+                break
+                
+        return recommendations
 
 def entrainement_modele():
-    print("0")
+
     mlflow.set_tracking_uri("http://localhost:5000")
-    print("1")
+
     mlflow.set_experiment("Recommendation_model")
-    print("2")
+
     #charger les données
     df_recettes = charger_bdd()
     likes_utilisateur = charger_likes_utilisateur()
@@ -121,18 +192,38 @@ def entrainement_modele():
         mlflow.log_artifact('tfidf.pkl')
         mlflow.log_artifact('tfidf_matrix.pkl')
 
-        mlflow.set_tags({
-            "embedding": "TF-IDF",
-            "status": "prod_candidate"
-        })
-    return tfidf, tfidf_matrix
+        mlflow.pyfunc.log_model(
+            artifact_path="model",
+            python_model=RecommendationModel(),
+            artifacts={
+                "tfidf": "tfidf.pkl",
+                "tfidf_matrix": "tfidf_matrix.pkl"
+            },
+            registered_model_name="Recommendation_model"
+        )
 
+    client = mlflow.MlflowClient()
+    versions = client.get_latest_versions(
+        "Recommendation_model", stages=["None"]
+    )
+
+    if versions:
+        client.transition_model_version_stage(
+            name="Recommendation_model",
+            version=versions[0].version,
+            stage="Production"
+        )
+        print("✅ Modèle mis en Production")
+
+
+    return tfidf, tfidf_matrix
 
 
 def get_modeles():
     """
     Tente de charger les modèles. S'ils n'existent pas, lance l'entraînement.
     """
+    print("hello")
     # On vérifie si les deux fichiers existent
     if os.path.exists('tfidf.pkl') and os.path.exists('tfidf_matrix.pkl'):
         try:
@@ -141,6 +232,7 @@ def get_modeles():
                 tfidf = pickle.load(f)
             with open('tfidf_matrix.pkl', 'rb') as f:
                 tfidf_matrix = pickle.load(f)
+            
             return tfidf, tfidf_matrix
             
         except (EOFError, pickle.UnpicklingError):
@@ -204,4 +296,6 @@ def recommend_implicit(N=5):
     return recommendations
 
 
-get_modeles()
+entrainement_modele()
+print("Entraînement terminé")
+

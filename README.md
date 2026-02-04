@@ -22,12 +22,66 @@ FRONT :
 # Lancer le projet en local : 
 
 - créer un .env à la racine du projet en copiant collant .env.example
-- docker compose up --build ou docker-compose up --build
+
+
+## Mise en place de Garage
+
+1. Démarrer le service Garage avec Docker Compose :
+```shell
+docker compose up garage -d
+```
+
+2. Vérifier que le service fonctionne :
+```shell
+docker exec -it garage /garage status
+```
+
+Mémoriser l'ID du node retourné.
+
+3. Assigner un layout :
+```shell
+docker exec -it garage /garage layout assign -z dc1 -c 1G <node_id>
+docker exec -it garage /garage layout apply --version 1
+```
+
+4. Créer un bucket de stockage puis vérifier sa création :
+```shell
+docker exec -it garage /garage bucket create mlflow-bucket
+docker exec -it garage /garage bucket info mlflow-bucket
+```
+
+5. Créer une key pour le bucket puis l'assigner au bucket en lui donnant les permissions nécessaires :
+```shell
+docker exec -it garage /garage key create mlflow-key
+docker exec -it garage /garage bucket allow --read --write --owner mlflow-bucket --key mlflow-key
+```
+
+Mémoriser la valeur de la key retournée (Key ID et Secret key).
+
+6. Dans le fichier `mlflow/docker-compose.yaml`, modifier les variables d'environnement `AWS_ACCESS_KEY_ID` et `AWS_SECRET_ACCESS_KEY` pour le service `mlflow` avec les valeurs de la key mémorisées précédemment.
+
+## Démarrer le service MLFlow avec Docker Compose et les autres conteneurs du projet :
+
+Après avoir réaliser les étapes de mise en place de Garage, démarrer le service MLFlow :
+```shell
+docker compose up --build
+```
+
+Lancer model.py en local afin de pouvoir le voir apparaître dans MLFlow et l'utiliser dans l'api
 
 - pour avoir accès au différentes fonctions du back : http://localhost:8000/docs
 - pour avoir accès au site (front et back) : http://localhost:5173/templates/index.html
 - accès bdd : http://localhost:8080/ (sélectioner System : PostgreSQl ; server : db ; Username : user ; Password : password ; Database : food_bd)
 
+
+# Utiliser MLFlow :
+
+L'interface MLFlow est accessible à l'adresse : [http://localhost:5000](http://localhost:5000).
+
+Pour utiliser MLFlow avec Python, installer la bibliothèque :
+```shell
+pip install mlflow
+```
 
 # Clef API Spoonacular
 
@@ -63,6 +117,5 @@ connections -> data sources -> add new data source -> sélectionner prometheus -
 connection-> Data sources -> build a bashboard -> add visualization -> prometheus -> select metrics -> run queries -> save bashboard
 
 
-# MLFlow
 
 

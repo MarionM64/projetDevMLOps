@@ -92,6 +92,58 @@ services:
     networks:
       - projet-network
 
+  mlflow:
+    restart: unless-stopped
+    image: burakince/mlflow:3.1.4
+    container_name: mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://garage:3900
+      - AWS_ACCESS_KEY_ID=GK59822fb679ca2a1d4deccb7d
+      - AWS_SECRET_ACCESS_KEY=3bb6f7c0ce3c3bca0f93f6a4a5c0ab60e7164c28367f3410bacb489600b7b43e
+      - MLFLOW_GUNICORN_OPTS='--log-level=debug'
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://postgres:password@postgres:5432/mlflow
+      --artifacts-destination s3://mlflow-bucket
+      --serve-artifacts
+      --host 0.0.0.0
+    depends_on:
+      - garage
+      - postgres
+    networks:
+      - projet-network
+  garage:
+    image: dxflrs/garage:v2.0.0
+    container_name: garage
+    restart: unless-stopped
+    ports:
+      - "3900:3900"
+      - "3901:3901"
+      - "3902:3902"
+      - "3903:3903"
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+      - ./data/garage/meta:/var/lib/garage/meta
+      - ./data/garage/data:/var/lib/garage/data
+    networks:
+      - projet-network
+
+  postgres:
+    image: 'postgres:17.5'
+    restart: unless-stopped
+    ports:
+      - 15432:5432
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'mlflow'
+    volumes:
+      - ./data/mlflow/postgres:/var/lib/postgresql/data/
+    networks:
+      - projet-network
+
 volumes:
   food_pgdata:
   grafana-data:

@@ -3,7 +3,9 @@ pandas
 numpy
 scipy_sparse
 pickle
-mlflow
+mlflow==3.6.0
 matplotlib_pyplot
 sklearn_feature_extraction_text
 sklearn_metrics_pairwise
+tempfile
+python == 3.10-slim
