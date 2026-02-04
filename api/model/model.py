@@ -213,7 +213,7 @@ def entrainement_modele():
             version=versions[0].version,
             stage="Production"
         )
-        print("✅ Modèle mis en Production")
+        print("Modèle mis en Production")
 
 
     return tfidf, tfidf_matrix
