@@ -100,8 +100,8 @@ services:
       - "5000:5000"
     environment:
       - MLFLOW_S3_ENDPOINT_URL=http://garage:3900
-      - AWS_ACCESS_KEY_ID=GKf249f859217fd49a2563693d
-      - AWS_SECRET_ACCESS_KEY=da90ad4a438b5b6f7add3b540845aa9c3ed7503019dd518bf83088a12205bf36
+      - AWS_ACCESS_KEY_ID=GK5e89125d221f37985f13ab4f
+      - AWS_SECRET_ACCESS_KEY=f0c45624ddaec75d23386d6db16912c17a7e24b8d3cd36c173dc8754fee8c952
       - MLFLOW_GUNICORN_OPTS='--log-level=debug'
     command: >
       mlflow server
