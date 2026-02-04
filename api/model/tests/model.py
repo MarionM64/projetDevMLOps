@@ -41,7 +41,7 @@ class RecommendationModel(mlflow.pyfunc.PythonModel):
             self.tfidf_matrix = pickle.load(f)
 
 
-    # FONCTION DE RECOMMANDATION
+    # FONCTION DE RECOMMANDATION basé sur recommend_implicit
     def predict(self, context, df_recettes):
 
         """
@@ -56,6 +56,7 @@ class RecommendationModel(mlflow.pyfunc.PythonModel):
         # Récupérer les index des recettes que l'utilisateur a aimées
         # On filtre le DataFrame pour ne garder que les likes
         liked_recipes_df = df_recettes[df_recettes["like"] > 0]  
+
         if liked_recipes_df.empty:
             nb_a_selectionner = min(N, len(df_recettes))
             return df_recettes.sample(n=nb_a_selectionner)[['id', 'nom']].apply(
@@ -105,7 +106,7 @@ class RecommendationModel(mlflow.pyfunc.PythonModel):
 
 def entrainement_modele():
 
-    mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_tracking_uri("http://mlflow:5000")
 
     mlflow.set_experiment("Recommendation_model")
 
@@ -294,8 +295,4 @@ def recommend_implicit(N=5):
             break
             
     return recommendations
-
-
-entrainement_modele()
-print("Entraînement terminé")
 

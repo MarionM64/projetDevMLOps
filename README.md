@@ -58,7 +58,7 @@ docker exec -it garage /garage bucket allow --read --write --owner mlflow-bucket
 
 Mémoriser la valeur de la key retournée (Key ID et Secret key).
 
-6. Dans le fichier `mlflow/docker-compose.yaml`, modifier les variables d'environnement `AWS_ACCESS_KEY_ID` et `AWS_SECRET_ACCESS_KEY` pour le service `mlflow` avec les valeurs de la key mémorisées précédemment.
+6. Dans le fichier `docker-compose.yaml`, modifier les variables d'environnement `AWS_ACCESS_KEY_ID` et `AWS_SECRET_ACCESS_KEY` pour le service `mlflow` avec les valeurs de la key mémorisées précédemment.
 
 ## Démarrer le service MLFlow avec Docker Compose et les autres conteneurs du projet :
 
@@ -66,8 +66,7 @@ Après avoir réaliser les étapes de mise en place de Garage, démarrer le serv
 ```shell
 docker compose up --build
 ```
-
-Lancer model.py en local afin de pouvoir le voir apparaître dans MLFlow et l'utiliser dans l'api
+Le modèle est entrainé au lancement de l'api
 
 - pour avoir accès au différentes fonctions du back : http://localhost:8000/docs
 - pour avoir accès au site (front et back) : http://localhost:5173/templates/index.html

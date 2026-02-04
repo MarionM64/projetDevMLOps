@@ -1,5 +1,6 @@
 import random
 from fastapi import FastAPI
+from model.tests.model import entrainement_modele
 from src.services.food_service_spoonacular import research_recipe
 from src.models.recipe import get_recipes, init_db, add_like_recipe
 import src.router.food_router as food_router
@@ -21,6 +22,8 @@ try:
     init_db()
     research_recipe("pasta")
     recettes = get_recipes()
+    entrainement_modele()
+    print("fini")
 except Exception as e:
     print(f"Erreur lors de l'initialisation: {e}")
 
