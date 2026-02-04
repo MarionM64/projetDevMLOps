@@ -50,7 +50,6 @@ class RecommendationModel(mlflow.pyfunc.PythonModel):
         # on charge les données
         N=5
         nb_a_selectionner = min(5, len(df_recettes)) 
-        likes_utilisateur = df_recettes['id'].sample(n=nb_a_selectionner).tolist()
 
         
         # Récupérer les index des recettes que l'utilisateur a aimées
@@ -218,81 +217,3 @@ def entrainement_modele():
 
 
     return tfidf, tfidf_matrix
-
-
-def get_modeles():
-    """
-    Tente de charger les modèles. S'ils n'existent pas, lance l'entraînement.
-    """
-    print("hello")
-    # On vérifie si les deux fichiers existent
-    if os.path.exists('tfidf.pkl') and os.path.exists('tfidf_matrix.pkl'):
-        try:
-            # Chargement des modèles depuis les fichiers
-            with open('tfidf.pkl', 'rb') as f:
-                tfidf = pickle.load(f)
-            with open('tfidf_matrix.pkl', 'rb') as f:
-                tfidf_matrix = pickle.load(f)
-            
-            return tfidf, tfidf_matrix
-            
-        except (EOFError, pickle.UnpicklingError):
-            # Fichiers corrompus -> On relance l'entraînement
-            return entrainement_modele()
-    else:
-        #Fichiers absents -> On lance l'entraînement
-        return entrainement_modele()
-    
-
-# --- 3. FONCTION DE RECOMMANDATION ---
-def recommend_implicit(N=5):
-    """
-    Recommande des recettes basées sur le contenu des recettes likées.
-    """
-    # Charger les données
-    df_recettes = charger_bdd()
-    likes_utilisateur = charger_likes_utilisateur()
-    tfidf, tfidf_matrix = get_modeles()
-    # Récupérer les index des recettes que l'utilisateur a aimées
-    # On filtre le DataFrame pour ne garder que les likes
-    liked_recipes_df = df_recettes[df_recettes['id'].isin(likes_utilisateur)]
-    
-    if liked_recipes_df.empty:
-        return [] 
-    
-    # On transforme les noms des recettes likées en vecteurs
-    user_vectors = tfidf.transform(liked_recipes_df['nom'])
-    
-    # On fait la MOYENNE des vecteurs (Le goût moyen de l'utilisateur)
-    user_profile = np.mean(user_vectors, axis=0)
-    
-    # Pour que Scikit-learn accepte le format, on s'assure que c'est bien un array 2D
-    user_profile = np.asarray(user_profile)
-
-    # 3. Calculer la similarité avec TOUTES les recettes
-    # Cosine Similarity : 1 = Identique, 0 = Rien à voir
-    cosine_sim = cosine_similarity(user_profile, tfidf_matrix)
-    
-    # cosine_sim est une liste de scores [[0.1, 0.9, 0.05...]]
-    # On l'aplatit pour avoir une liste simple
-    scores = cosine_sim.flatten()
-    
-    # 4. Trier les résultats
-    # argsort donne les indices triés du plus petit au plus grand, on inverse avec [::-1]
-    sorted_indices = scores.argsort()[::-1]
-    
-    recommendations = []
-    for idx in sorted_indices:
-        recette_id = int(df_recettes.iloc[idx]['id'])
-        recette_nom = str(df_recettes.iloc[idx]['nom'])
-        score = float(scores[idx])
-        
-        # On ne recommande pas ce qu'il a déjà liké
-        if recette_id not in likes_utilisateur:
-            recommendations.append((recette_id, recette_nom, round(score, 2)))
-            
-        if len(recommendations) >= N:
-            break
-            
-    return recommendations
-
