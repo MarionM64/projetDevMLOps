@@ -112,7 +112,7 @@ def entrainement_modele():
     #charger les données
     df_recettes = charger_bdd()
     likes_utilisateur = charger_likes_utilisateur()
-    print("3")
+
     with mlflow.start_run(run_name="Content-Based Filtering"):
         #logger les parametres sur mlflow
         params = {
@@ -121,7 +121,7 @@ def entrainement_modele():
             "analyzer": "word",
             "algorithm": "Cosine Similarity"
         }
-        print("4")
+
         mlflow.log_params(params)
         
         print("Vectorisation des recettes...")

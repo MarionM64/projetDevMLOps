@@ -22,13 +22,11 @@ try:
     research_recipe("pasta")
     recettes = get_recipes()
     entrainement_modele()
-    print("fini")
 except Exception as e:
     print(f"Erreur lors de l'initialisation: {e}")
 
 @app.get("/")
 async def root():
-    print("ok")
     return {"message": "Hello World"}
 
 
